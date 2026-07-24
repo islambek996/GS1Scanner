@@ -1,8 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
 }
+implementation(libs.androidx.recyclerview)
 
 android {
+
     namespace = "kg.teksher.gs1scanner"
     compileSdk = 36
 
@@ -15,7 +17,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    buildFeatures {
+        viewBinding = true
+    }
     buildTypes {
         release {
             optimization {
