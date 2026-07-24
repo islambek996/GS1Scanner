@@ -463,6 +463,7 @@ class MainActivity : AppCompatActivity() {
                 scannedCodes.clear()
 
                 list.clear()
+                list.trimToSize()
 
                 adapter.notifyDataSetChanged()
 
