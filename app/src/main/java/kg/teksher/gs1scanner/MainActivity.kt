@@ -40,7 +40,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
 import java.io.File
-import java.io.FileWriter
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.LinkedHashSet
