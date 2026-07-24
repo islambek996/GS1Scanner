@@ -523,19 +523,12 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-            val fileName =
-
-                "GS1_" +
-
-                        SimpleDateFormat(
-
-                            "yyyyMMdd_HHmmss",
-
-                            Locale.getDefault()
-
-                        ).format(Date())
-
-            +".csv"
+            val fileName = "GS1_${
+                SimpleDateFormat(
+                    "yyyyMMdd_HHmmss",
+                    Locale.getDefault()
+                ).format(Date())
+            }.csv"
 
             val csv = File(
 
