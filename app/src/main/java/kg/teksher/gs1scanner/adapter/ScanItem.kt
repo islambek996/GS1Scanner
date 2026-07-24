@@ -1,4 +1,7 @@
-package kg.teksher.gs1scanner.adapter
+package kg.teksher.gs1scanner.model
 
-class ScanItem {
-}
+data class ScanItem(
+    val raw: String,
+    val display: String,
+    val timestamp: Long = System.currentTimeMillis()
+)
