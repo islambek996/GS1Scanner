@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
 }
-implementation(libs.androidx.recyclerview)
+
 
 android {
 
@@ -35,6 +35,8 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.androidx.recyclerview)
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)

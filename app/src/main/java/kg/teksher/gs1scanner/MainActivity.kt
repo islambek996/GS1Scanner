@@ -1,5 +1,9 @@
 package kg.teksher.gs1scanner
 
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kg.teksher.gs1scanner.adapter.CodeAdapter
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -15,9 +19,9 @@ import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.widget.ArrayAdapter
+
 import android.widget.Button
-import android.widget.ListView
+
 import android.widget.TextView
 import android.widget.Toast
 
@@ -60,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtCounter: TextView
     private lateinit var txtResult: TextView
 
-    private lateinit var listCodes: ListView
+    private lateinit var listCodes: RecyclerView
 
     private lateinit var btnClear: Button
     private lateinit var btnExport: Button
@@ -101,8 +105,7 @@ class MainActivity : AppCompatActivity() {
     private val list =
         ArrayList<String>()
 
-    private lateinit var adapter:
-            ArrayAdapter<String>
+    private lateinit var adapter: CodeAdapter
 
     //==============================
     // Storage
@@ -171,6 +174,9 @@ class MainActivity : AppCompatActivity() {
 
         listCodes =
             findViewById(R.id.listCodes)
+        listCodes.layoutManager = LinearLayoutManager(this)
+        adapter = CodeAdapter(list)
+        listCodes.adapter = adapter
 
         btnClear =
             findViewById(R.id.btnClear)
@@ -184,12 +190,8 @@ class MainActivity : AppCompatActivity() {
                 Context.MODE_PRIVATE
             )
 
-        adapter =
-            ArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                list
-            )
+
+
 
         listCodes.adapter = adapter
 
