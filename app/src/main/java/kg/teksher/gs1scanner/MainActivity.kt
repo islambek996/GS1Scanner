@@ -48,6 +48,8 @@ import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
+import kg.teksher.gs1scanner.scanner.BarcodeAnalyzer
+
 class MainActivity : AppCompatActivity() {
 
     //==============================
@@ -267,51 +269,11 @@ class MainActivity : AppCompatActivity() {
                     .build()
 
             analysis.setAnalyzer(
-                cameraExecutor
-            ) { imageProxy ->
-
-                val mediaImage =
-                    imageProxy.image
-
-                if (mediaImage == null) {
-
-                    imageProxy.close()
-
-                    return@setAnalyzer
-
+                cameraExecutor,
+                BarcodeAnalyzer(scanner) { value ->
+                    processBarcode(value)
                 }
-
-                val image =
-                    InputImage.fromMediaImage(
-                        mediaImage,
-                        imageProxy.imageInfo.rotationDegrees
-                    )
-
-                scanner.process(image)
-
-                    .addOnSuccessListener {
-
-                            barcodes ->
-
-                        for (barcode in barcodes) {
-
-                            val value =
-                                barcode.rawValue
-                                    ?: continue
-
-                            processBarcode(value)
-
-                        }
-
-                    }
-
-                    .addOnCompleteListener {
-
-                        imageProxy.close()
-
-                    }
-
-            }
+            )
 
             provider.unbindAll()
 
