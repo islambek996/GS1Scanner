@@ -501,37 +501,25 @@ class MainActivity : AppCompatActivity() {
                 dir.mkdirs()
             }
 
-            val fileName = "GS1_${
-                SimpleDateFormat(
-                    "yyyyMMdd_HHmmss",
-                    Locale.getDefault()
-                ).format(Date())
-            }.csv"
-
-            val file = File(dir, fileName)
+            val file = File(
+                dir,
+                "GS1_${
+                    SimpleDateFormat(
+                        "yyyyMMdd_HHmmss",
+                        Locale.getDefault()
+                    ).format(Date())
+                }.csv"
+            )
 
             file.bufferedWriter(Charsets.UTF_8).use { writer ->
 
-                writer.write("Код")
-                writer.newLine()
+                list.forEach { code ->
 
-                val time =
-                    SimpleDateFormat(
-                        "dd.MM.yyyy HH:mm:ss",
-                        Locale.getDefault()
-                    )
+                    val exportCode = code.trimStart(29.toChar())
 
-                list.forEachIndexed { index, code ->
-
-                    val exportCode =
-                        if (code.isNotEmpty() && code[0] == 29.toChar())
-                            code.substring(1)
-                        else
-                            code
-
-                    writer.write(
-                        "${index + 1};${time.format(Date())};${code.trimStart(29.toChar())}"
-                    )
+                    writer.write(exportCode)
+                    writer.newLine()
+                }
             }
 
             val uri = FileProvider.getUriForFile(
@@ -546,12 +534,7 @@ class MainActivity : AppCompatActivity() {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
-            startActivity(
-                Intent.createChooser(
-                    intent,
-                    "Экспорт CSV"
-                )
-            )
+            startActivity(Intent.createChooser(intent, "Экспорт CSV"))
 
         } catch (e: Exception) {
 
@@ -569,122 +552,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
         }
-    }
-
-    //==============================
-    // Share CSV
-    //==============================
-
-    private fun shareCSV(
-
-        file: File
-
-    ) {
-
-        val uri: Uri =
-
-            FileProvider.getUriForFile(
-
-                this,
-
-                packageName + ".provider",
-
-                file
-
-            )
-
-        val intent = Intent(
-
-            Intent.ACTION_SEND
-
-        )
-
-        intent.type =
-
-            "text/csv"
-
-        intent.putExtra(
-
-            Intent.EXTRA_STREAM,
-
-            uri
-
-        )
-
-        intent.addFlags(
-
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-        )
-
-        startActivity(
-
-            Intent.createChooser(
-
-                intent,
-
-                "Экспорт CSV"
-
-            )
-
-        )
-
-    }
-
-    //==============================
-    // Vibrate
-    //==============================
-
-    private fun vibrate() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-
-            val manager =
-
-                getSystemService(
-
-                    VibratorManager::class.java
-
-                )
-
-            manager.defaultVibrator.vibrate(
-
-                VibrationEffect.createOneShot(
-
-                    60,
-
-                    VibrationEffect.DEFAULT_AMPLITUDE
-
-                )
-
-            )
-
-        } else {
-
-            @Suppress("DEPRECATION")
-
-            val vibrator =
-
-                getSystemService(
-
-                    VIBRATOR_SERVICE
-
-                ) as Vibrator
-
-            vibrator.vibrate(
-
-                VibrationEffect.createOneShot(
-
-                    60,
-
-                    VibrationEffect.DEFAULT_AMPLITUDE
-
-                )
-
-            )
-
-        }
-
     }
 
     //==============================
