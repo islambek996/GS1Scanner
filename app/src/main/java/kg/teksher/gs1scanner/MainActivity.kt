@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicLong
 
 import kg.teksher.gs1scanner.scanner.BarcodeAnalyzer
 
+import androidx.recyclerview.widget.DividerItemDecoration
+
 class MainActivity : AppCompatActivity() {
 
     //==============================
@@ -341,8 +343,8 @@ class MainActivity : AppCompatActivity() {
 
             list.add(value)
 
-            adapter.notifyDataSetChanged()
-
+            adapter.notifyItemInserted(list.size - 1)
+            listCodes.smoothScrollToPosition(list.size - 1)
             txtResult.text = value
 
             updateCounter()
@@ -435,7 +437,8 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        adapter.notifyDataSetChanged()
+        adapter.notifyItemInserted(list.size - 1)
+        listCodes.smoothScrollToPosition(list.size - 1)
 
     }
 
