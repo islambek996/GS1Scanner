@@ -327,7 +327,6 @@ class MainActivity : AppCompatActivity() {
                     120
                 )
 
-                vibrate()
 
                 txtResult.text =
                     "Дубликат"
@@ -351,7 +350,6 @@ class MainActivity : AppCompatActivity() {
                 120
             )
 
-            vibrate()
 
             saveHistory()
 
@@ -514,7 +512,7 @@ class MainActivity : AppCompatActivity() {
 
             file.bufferedWriter(Charsets.UTF_8).use { writer ->
 
-                writer.write("№;Дата;Код")
+                writer.write("Код")
                 writer.newLine()
 
                 val time =
@@ -525,12 +523,15 @@ class MainActivity : AppCompatActivity() {
 
                 list.forEachIndexed { index, code ->
 
-                    writer.write(
-                        "${index + 1};${time.format(Date())};$code"
-                    )
+                    val exportCode =
+                        if (code.isNotEmpty() && code[0] == 29.toChar())
+                            code.substring(1)
+                        else
+                            code
 
-                    writer.newLine()
-                }
+                    writer.write(
+                        "${index + 1};${time.format(Date())};${code.trimStart(29.toChar())}"
+                    )
             }
 
             val uri = FileProvider.getUriForFile(
@@ -554,9 +555,17 @@ class MainActivity : AppCompatActivity() {
 
         } catch (e: Exception) {
 
+            e.printStackTrace()
+
+            android.util.Log.e(
+                "EXPORT",
+                "Export error",
+                e
+            )
+
             Toast.makeText(
                 this,
-                e.localizedMessage,
+                e.toString(),
                 Toast.LENGTH_LONG
             ).show()
         }
