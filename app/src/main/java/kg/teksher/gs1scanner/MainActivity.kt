@@ -488,39 +488,19 @@ class MainActivity : AppCompatActivity() {
     private fun exportCSV() {
 
         if (list.isEmpty()) {
-
-            Toast.makeText(
-
-                this,
-
-                "Нет данных",
-
-                Toast.LENGTH_SHORT
-
-            ).show()
-
+            Toast.makeText(this, "Нет данных для экспорта", Toast.LENGTH_SHORT).show()
             return
-
         }
 
         try {
 
             val dir = File(
-
-                getExternalFilesDir(
-
-                    Environment.DIRECTORY_DOCUMENTS
-
-                ),
-
+                getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
                 "Export"
-
             )
 
             if (!dir.exists()) {
-
                 dir.mkdirs()
-
             }
 
             val fileName = "GS1_${
@@ -530,60 +510,56 @@ class MainActivity : AppCompatActivity() {
                 ).format(Date())
             }.csv"
 
-            val csv = File(
+            val file = File(dir, fileName)
 
-                dir,
+            file.bufferedWriter(Charsets.UTF_8).use { writer ->
 
-                fileName
+                writer.write("№;Дата;Код")
+                writer.newLine()
 
-            )
+                val time =
+                    SimpleDateFormat(
+                        "dd.MM.yyyy HH:mm:ss",
+                        Locale.getDefault()
+                    )
 
-            val writer =
+                list.forEachIndexed { index, code ->
 
-                FileWriter(csv)
+                    writer.write(
+                        "${index + 1};${time.format(Date())};$code"
+                    )
 
-            writer.append("№;Код\n")
-
-            var index = 1
-
-            for (code in list) {
-
-                writer.append(
-
-                    index.toString()
-
-                )
-
-                writer.append(";")
-
-                writer.append(code)
-
-                writer.append("\n")
-
-                index++
-
+                    writer.newLine()
+                }
             }
 
-            writer.flush()
+            val uri = FileProvider.getUriForFile(
+                this,
+                "$packageName.provider",
+                file
+            )
 
-            writer.close()
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
-            shareCSV(csv)
+            startActivity(
+                Intent.createChooser(
+                    intent,
+                    "Экспорт CSV"
+                )
+            )
 
         } catch (e: Exception) {
 
             Toast.makeText(
-
                 this,
-
-                e.message,
-
+                e.localizedMessage,
                 Toast.LENGTH_LONG
-
             ).show()
-
         }
-
     }
 
     //==============================
