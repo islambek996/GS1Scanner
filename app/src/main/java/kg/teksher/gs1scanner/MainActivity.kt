@@ -55,7 +55,11 @@ import java.util.concurrent.atomic.AtomicLong
 import kg.teksher.gs1scanner.scanner.BarcodeAnalyzer
 
 import androidx.recyclerview.widget.DividerItemDecoration
-
+import kg.teksher.gs1scanner.model.ScanRequest
+import kg.teksher.gs1scanner.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     //==============================
@@ -559,6 +563,43 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+    private fun sendScanToServer(code: String) {
+
+        RetrofitClient.api.sendScan(ScanRequest(code))
+            .enqueue(object : Callback<Void> {
+
+                override fun onResponse(
+                    call: Call<Void>,
+                    response: Response<Void>
+                ) {
+
+                    if (response.isSuccessful) {
+                        android.util.Log.d(
+                            "API",
+                            "Скан успешно отправлен"
+                        )
+                    } else {
+                        android.util.Log.e(
+                            "API",
+                            "Ошибка сервера: ${response.code()}"
+                        )
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<Void>,
+                    t: Throwable
+                ) {
+                    android.util.Log.e(
+                        "API",
+                        "Ошибка сети",
+                        t
+                    )
+                }
+            })
+    }
+
 
     //==============================
     // Destroy
