@@ -9,10 +9,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
 
     // Для эмулятора Android Studio
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+     //private const val BASE_URL = "http://10.0.2.2:8080/"
 
     // Для реального телефона позже заменим на IP компьютера:
-    // private const val BASE_URL = "http://192.168.1.100:8080/"
+    private const val BASE_URL = "http://172.20.10.2:8080/ "
 
     val api: ApiService by lazy {
 

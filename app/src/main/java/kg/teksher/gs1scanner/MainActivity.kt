@@ -358,6 +358,10 @@ class MainActivity : AppCompatActivity() {
                 120
             )
 
+            saveHistory()
+
+            sendScanToServer(value)
+
 
             saveHistory()
 
