@@ -1,5 +1,9 @@
 package kg.teksher.gs1scanner
 
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kg.teksher.gs1scanner.adapter.CodeAdapter
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -15,9 +19,9 @@ import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.widget.ArrayAdapter
+
 import android.widget.Button
-import android.widget.ListView
+
 import android.widget.TextView
 import android.widget.Toast
 
@@ -34,13 +38,13 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 
-import com.google.mlkit.vision.barcode.Barcode
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
 import java.io.File
-import java.io.FileWriter
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.LinkedHashSet
@@ -48,6 +52,14 @@ import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
+import kg.teksher.gs1scanner.scanner.BarcodeAnalyzer
+
+import androidx.recyclerview.widget.DividerItemDecoration
+import kg.teksher.gs1scanner.model.ScanRequest
+import kg.teksher.gs1scanner.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     //==============================
@@ -58,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtCounter: TextView
     private lateinit var txtResult: TextView
 
-    private lateinit var listCodes: ListView
+    private lateinit var listCodes: RecyclerView
 
     private lateinit var btnClear: Button
     private lateinit var btnExport: Button
@@ -99,8 +111,7 @@ class MainActivity : AppCompatActivity() {
     private val list =
         ArrayList<String>()
 
-    private lateinit var adapter:
-            ArrayAdapter<String>
+    private lateinit var adapter: CodeAdapter
 
     //==============================
     // Storage
@@ -169,6 +180,9 @@ class MainActivity : AppCompatActivity() {
 
         listCodes =
             findViewById(R.id.listCodes)
+        listCodes.layoutManager = LinearLayoutManager(this)
+        adapter = CodeAdapter(list)
+        listCodes.adapter = adapter
 
         btnClear =
             findViewById(R.id.btnClear)
@@ -182,12 +196,8 @@ class MainActivity : AppCompatActivity() {
                 Context.MODE_PRIVATE
             )
 
-        adapter =
-            ArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                list
-            )
+
+
 
         listCodes.adapter = adapter
 
@@ -267,51 +277,11 @@ class MainActivity : AppCompatActivity() {
                     .build()
 
             analysis.setAnalyzer(
-                cameraExecutor
-            ) { imageProxy ->
-
-                val mediaImage =
-                    imageProxy.image
-
-                if (mediaImage == null) {
-
-                    imageProxy.close()
-
-                    return@setAnalyzer
-
+                cameraExecutor,
+                BarcodeAnalyzer(scanner) { value ->
+                    processBarcode(value)
                 }
-
-                val image =
-                    InputImage.fromMediaImage(
-                        mediaImage,
-                        imageProxy.imageInfo.rotationDegrees
-                    )
-
-                scanner.process(image)
-
-                    .addOnSuccessListener {
-
-                            barcodes ->
-
-                        for (barcode in barcodes) {
-
-                            val value =
-                                barcode.rawValue
-                                    ?: continue
-
-                            processBarcode(value)
-
-                        }
-
-                    }
-
-                    .addOnCompleteListener {
-
-                        imageProxy.close()
-
-                    }
-
-            }
+            )
 
             provider.unbindAll()
 
@@ -365,7 +335,6 @@ class MainActivity : AppCompatActivity() {
                     120
                 )
 
-                vibrate()
 
                 txtResult.text =
                     "Дубликат"
@@ -378,8 +347,8 @@ class MainActivity : AppCompatActivity() {
 
             list.add(value)
 
-            adapter.notifyDataSetChanged()
-
+            adapter.notifyItemInserted(list.size - 1)
+            listCodes.smoothScrollToPosition(list.size - 1)
             txtResult.text = value
 
             updateCounter()
@@ -389,7 +358,10 @@ class MainActivity : AppCompatActivity() {
                 120
             )
 
-            vibrate()
+            saveHistory()
+
+            sendScanToServer(value)
+
 
             saveHistory()
 
@@ -473,7 +445,8 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        adapter.notifyDataSetChanged()
+        adapter.notifyItemInserted(list.size - 1)
+        listCodes.smoothScrollToPosition(list.size - 1)
 
     }
 
@@ -498,6 +471,7 @@ class MainActivity : AppCompatActivity() {
                 scannedCodes.clear()
 
                 list.clear()
+                list.trimToSize()
 
                 adapter.notifyDataSetChanged()
 
@@ -526,226 +500,110 @@ class MainActivity : AppCompatActivity() {
     private fun exportCSV() {
 
         if (list.isEmpty()) {
-
-            Toast.makeText(
-
-                this,
-
-                "Нет данных",
-
-                Toast.LENGTH_SHORT
-
-            ).show()
-
+            Toast.makeText(this, "Нет данных для экспорта", Toast.LENGTH_SHORT).show()
             return
-
         }
 
         try {
 
             val dir = File(
-
-                getExternalFilesDir(
-
-                    Environment.DIRECTORY_DOCUMENTS
-
-                ),
-
+                getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
                 "Export"
-
             )
 
             if (!dir.exists()) {
-
                 dir.mkdirs()
-
             }
 
-            val fileName =
-
-                "GS1_" +
-
-                        SimpleDateFormat(
-
-                            "yyyyMMdd_HHmmss",
-
-                            Locale.getDefault()
-
-                        ).format(Date())
-
-            +".csv"
-
-            val csv = File(
-
+            val file = File(
                 dir,
-
-                fileName
-
+                "GS1_${
+                    SimpleDateFormat(
+                        "yyyyMMdd_HHmmss",
+                        Locale.getDefault()
+                    ).format(Date())
+                }.csv"
             )
 
-            val writer =
+            file.bufferedWriter(Charsets.UTF_8).use { writer ->
 
-                FileWriter(csv)
+                list.forEach { code ->
 
-            writer.append("№;Код\n")
+                    val exportCode = code.trimStart(29.toChar())
 
-            var index = 1
-
-            for (code in list) {
-
-                writer.append(
-
-                    index.toString()
-
-                )
-
-                writer.append(";")
-
-                writer.append(code)
-
-                writer.append("\n")
-
-                index++
-
+                    writer.write(exportCode)
+                    writer.newLine()
+                }
             }
 
-            writer.flush()
+            val uri = FileProvider.getUriForFile(
+                this,
+                "$packageName.provider",
+                file
+            )
 
-            writer.close()
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
-            shareCSV(csv)
+            startActivity(Intent.createChooser(intent, "Экспорт CSV"))
 
         } catch (e: Exception) {
 
+            e.printStackTrace()
+
+            android.util.Log.e(
+                "EXPORT",
+                "Export error",
+                e
+            )
+
             Toast.makeText(
-
                 this,
-
-                e.message,
-
+                e.toString(),
                 Toast.LENGTH_LONG
-
             ).show()
-
         }
-
     }
 
-    //==============================
-    // Share CSV
-    //==============================
+    private fun sendScanToServer(code: String) {
 
-    private fun shareCSV(
+        RetrofitClient.api.sendScan(ScanRequest(code))
+            .enqueue(object : Callback<Void> {
 
-        file: File
+                override fun onResponse(
+                    call: Call<Void>,
+                    response: Response<Void>
+                ) {
 
-    ) {
+                    if (response.isSuccessful) {
+                        android.util.Log.d(
+                            "API",
+                            "Скан успешно отправлен"
+                        )
+                    } else {
+                        android.util.Log.e(
+                            "API",
+                            "Ошибка сервера: ${response.code()}"
+                        )
+                    }
+                }
 
-        val uri: Uri =
-
-            FileProvider.getUriForFile(
-
-                this,
-
-                packageName + ".provider",
-
-                file
-
-            )
-
-        val intent = Intent(
-
-            Intent.ACTION_SEND
-
-        )
-
-        intent.type =
-
-            "text/csv"
-
-        intent.putExtra(
-
-            Intent.EXTRA_STREAM,
-
-            uri
-
-        )
-
-        intent.addFlags(
-
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-        )
-
-        startActivity(
-
-            Intent.createChooser(
-
-                intent,
-
-                "Экспорт CSV"
-
-            )
-
-        )
-
+                override fun onFailure(
+                    call: Call<Void>,
+                    t: Throwable
+                ) {
+                    android.util.Log.e(
+                        "API",
+                        "Ошибка сети",
+                        t
+                    )
+                }
+            })
     }
 
-    //==============================
-    // Vibrate
-    //==============================
-
-    private fun vibrate() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-
-            val manager =
-
-                getSystemService(
-
-                    VibratorManager::class.java
-
-                )
-
-            manager.defaultVibrator.vibrate(
-
-                VibrationEffect.createOneShot(
-
-                    60,
-
-                    VibrationEffect.DEFAULT_AMPLITUDE
-
-                )
-
-            )
-
-        } else {
-
-            @Suppress("DEPRECATION")
-
-            val vibrator =
-
-                getSystemService(
-
-                    VIBRATOR_SERVICE
-
-                ) as Vibrator
-
-            vibrator.vibrate(
-
-                VibrationEffect.createOneShot(
-
-                    60,
-
-                    VibrationEffect.DEFAULT_AMPLITUDE
-
-                )
-
-            )
-
-        }
-
-    }
 
     //==============================
     // Destroy
