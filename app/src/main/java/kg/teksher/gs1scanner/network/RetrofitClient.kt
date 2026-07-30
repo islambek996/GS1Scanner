@@ -8,14 +8,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    // Для эмулятора Android Studio
+     //Для эмулятора Android Studio
      //private const val BASE_URL = "http://10.0.2.2:8080/"
 
-    // Для реального телефона позже заменим на IP компьютера:
-    //private const val BASE_URL = "http://172.20.10.2:8080/"
+     //Для реального телефона:
+     //private const val BASE_URL = "http://172.20.10.2:8080/"
 
-    // Внешний сайт
-    private const val BASE_URL = "https://teksher-api.onrender.com/"
+     //Внешний сайт
+     //private const val BASE_URL = "https://teksher-api.onrender.com/"
+// Нужно поменять если надо
+    private const val BASE_URL ="main.teksher.kg"
     val api: ApiService by lazy {
 
         val logging = HttpLoggingInterceptor()
