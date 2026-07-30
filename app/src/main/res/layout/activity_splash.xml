@@ -15,7 +15,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Teksher Scanner"
+        android:text="Teksher MZKM"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
         android:textSize="26sp"
@@ -24,7 +24,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GS1 DataMatrix Scanner"
+        android:text="Teksher MZKM Scanner"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
         android:alpha="0.85"/>

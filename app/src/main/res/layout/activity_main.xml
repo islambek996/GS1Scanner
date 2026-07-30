@@ -15,7 +15,8 @@
         android:layout_height="60dp"
         android:background="@color/ts_primary"
         app:title="TEKSHER"
-        app:titleCentered="true"
+        app:titleCentered="false"
+        app:titleMarginTop="70px"
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,9 +84,11 @@
         android:textColor="@color/ts_text"
         android:textSize="15sp"
         android:textStyle="bold"
+
         app:layout_constraintTop_toBottomOf="@id/lblLastCode"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
     <!-- Заголовок истории -->
     <TextView
         android:id="@+id/lblHistory"
@@ -111,6 +114,7 @@
         app:layout_constraintTop_toBottomOf="@id/lblHistory"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
     <!-- Нижняя панель -->
     <LinearLayout
         android:id="@+id/buttonsLayout"
@@ -118,7 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="40dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:weightSum="2"
@@ -135,8 +139,7 @@
             android:textAllCaps="false"
             android:textStyle="bold"
             android:insetTop="0dp"
-            android:insetBottom="0dp"></Button>
-
+            android:insetBottom="0dp"/>
 
         <Space
             android:layout_width="16dp"
@@ -147,7 +150,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="Экспорт"
+            android:text="Экспорт CSV"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:insetTop="0dp"
