@@ -60,6 +60,7 @@ import kg.teksher.gs1scanner.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 class MainActivity : AppCompatActivity() {
 
     //==============================
@@ -128,6 +129,7 @@ class MainActivity : AppCompatActivity() {
         private const val PREF_USER_ID = "user_id"
 
     }
+
     private fun getUserId(): String {
 
         var id = prefs.getString(PREF_USER_ID, null)
@@ -577,8 +579,6 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
-
-
 
 
     private fun sendScanToServer(code: String) {
