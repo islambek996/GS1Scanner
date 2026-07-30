@@ -15,8 +15,8 @@
         android:layout_height="60dp"
         android:background="@color/ts_primary"
         app:title="TEKSHER"
-        app:titleCentered="true"
-        app:titleMarginTop="15dp"
+        app:titleCentered="false"
+        app:titleMarginTop="70px"
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,6 +84,7 @@
         android:textColor="@color/ts_text"
         android:textSize="15sp"
         android:textStyle="bold"
+
         app:layout_constraintTop_toBottomOf="@id/lblLastCode"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

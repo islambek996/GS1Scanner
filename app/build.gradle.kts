@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-
+//Код был протестирован на устройстве samsung SM-A17F
 android {
 
     namespace = "kg.teksher.gs1scanner"

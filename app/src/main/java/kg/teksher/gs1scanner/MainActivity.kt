@@ -580,7 +580,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    }
+
     private fun sendScanToServer(code: String) {
 
         RetrofitClient.api.sendScan(
