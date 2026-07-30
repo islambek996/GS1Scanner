@@ -124,10 +124,7 @@ class MainActivity : AppCompatActivity() {
 
         private const val PREF_NAME =
             "scanner"
-
-        private const val PREF_CODES =
-            "codes"
-
+        private const val PREF_CODES = "codes"
         private const val PREF_USER_ID = "user_id"
 
     }
@@ -581,6 +578,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
+    }
     private fun sendScanToServer(code: String) {
 
         RetrofitClient.api.sendScan(
