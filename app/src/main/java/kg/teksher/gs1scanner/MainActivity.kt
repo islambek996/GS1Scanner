@@ -128,6 +128,19 @@ class MainActivity : AppCompatActivity() {
         private const val PREF_CODES =
             "codes"
 
+        private const val PREF_USER_ID = "user_id"
+
+    }
+    private fun getUserId(): String {
+
+        var id = prefs.getString(PREF_USER_ID, null)
+
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString()
+            prefs.edit().putString(PREF_USER_ID, id).apply()
+        }
+
+        return id
     }
 
     //==============================
@@ -570,7 +583,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendScanToServer(code: String) {
 
-        RetrofitClient.api.sendScan(ScanRequest(code))
+        RetrofitClient.api.sendScan(
+            ScanRequest(
+                code = code,
+                userId = getUserId()
+            )
+        )
             .enqueue(object : Callback<Void> {
 
                 override fun onResponse(
